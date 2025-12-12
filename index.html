@@ -1,0 +1,55 @@
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sguardi sul Mondo – Carica la tua foto</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f9f9f9; }
+        h1, h2 { text-align: center; }
+        form { max-width: 500px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        input, textarea { width: 100%; margin-bottom: 10px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+        button { width: 100%; padding: 10px; background: #0078D7; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #005a9e; }
+        .note { font-size: 0.9em; color: #555; }
+    </style>
+</head>
+<body>
+    <h1>Sguardi sul Mondo</h1>
+    <h2>Concorso Fotografico</h2>
+    <form id="uploadForm">
+        <input type="text" name="name" placeholder="Il tuo nome" required>
+        <input type="text" name="title" placeholder="Titolo della foto" required>
+        <textarea name="caption" placeholder="Didascalia (breve descrizione)" required></textarea>
+        <input type="file" name="photo" accept=".jpg,.jpeg,.png,.heic" required>
+        <p class="note">Formati comuni (JPG/PNG/HEIC). Consigliato ≤ 8 MB.</p>
+        <button type="submit">Invia foto</button>
+    </form>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+
+            // Inserisci qui l'URL del tuo endpoint Power Automate
+            const endpoint = "https://prod-XX.westeurope.logic.azure.com/..."; 
+
+            try {
+                const response = await fetch(endpoint, {
+                    method: "POST",
+                    body: formData
+                });
+
+                if (response.ok) {
+                    alert("Foto caricata con successo!");
+                    this.reset();
+                } else {
+                    alert("Errore nel caricamento. Riprova.");
+                }
+            } catch (error) {
+                alert("Errore di connessione.");
+            }
+        });
+    </script>
+</body>
