@@ -1,56 +1,148 @@
-
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sguardi sul Mondo – Carica la tua foto</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background: #f9f9f9; }
-        h1, h2 { text-align: center; }
-        form { max-width: 500px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        input, textarea { width: 100%; margin-bottom: 10px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
-        button { width: 100%; padding: 10px; background: #0078D7; color: white; border: none; border-radius: 4px; cursor: pointer; }
-        button:hover { background: #005a9e; }
-        .note { font-size: 0.9em; color: #555; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sguardi sul Mondo – Carica la tua foto</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #ffe1c5, #c9e9ff, #ffd6f2);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      background: #ffffff;
+      width: 100%;
+      max-width: 480px;
+      padding: 30px;
+      border-radius: 18px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+      text-align: center;
+    }
+
+    h1 {
+      color: #002b5b;
+      font-size: 22px;
+      margin-bottom: 20px;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 14px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 15px;
+      box-sizing: border-box;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      background: #0078ff;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 17px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #005fcc;
+    }
+
+    .note {
+      font-size: 13px;
+      color: #555;
+      margin-bottom: 12px;
+    }
+  </style>
 </head>
+
 <body>
-    <h1>Sguardi sul Mondo</h1>
-    <h2>Concorso Fotografico</h2>
-    <form id="uploadForm">
-        <input type="text" name="name" placeholder="Il tuo nome" required>
-        <input type="text" name="title" placeholder="Titolo della foto" required>
-        <textarea name="caption" placeholder="Didascalia (breve descrizione)" required></textarea>
-        <input type="file" name="photo" accept=".jpg,.jpeg,.png,.heic" required>
-        <p class="note">Formati comuni (JPG/PNG/HEIC). Consigliato ≤ 8 MB.</p>
-        <button type="submit">Invia foto</button>
-    </form>
 
-    <script>
-        document.getElementById('uploadForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const formData = new FormData(this);
+  <div class="container">
+    <h1>Concorso Fotografico<br>“Sguardi sul Mondo”</h1>
 
-            // Inserisci qui l'URL del tuo endpoint Power Automate
-            const endpoint = "https://defaultdae140c50de440ff94e339a45b687c.fb.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/e2aef588aad049708ae373e3960750b4/triggers/manual/paths/invoke?api-version=1"; 
+    <input id="nome" type="text" placeholder="Il tuo nome" required>
+    <input id="titolo" type="text" placeholder="Titolo della foto" required>
+    <textarea id="didascalia" rows="3" placeholder="Didascalia (breve descrizione)" required></textarea>
 
-            try {
-                const response = await fetch(endpoint, {
-                    method: "POST",
-                    body: formData
-                });
+    <input id="file" type="file" accept=".jpg,.jpeg,.png,.heic" required>
+    <div class="note">Formati JPG / PNG / HEIC – consigliato ≤ 8 MB</div>
 
-                if (response.ok) {
-                    alert("Foto caricata con successo!");
-                    this.reset();
-                } else {
-                    alert("Errore nel caricamento. Riprova.");
-                }
-            } catch (error) {
-                alert("Errore di connessione.");
-            }
-        });
-    </script>
+    <button onclick="inviaFoto()">Invia foto</button>
+  </div>
+
+  <script>
+    async function inviaFoto() {
+
+      const nome = document.getElementById("nome").value.trim();
+      const titolo = document.getElementById("titolo").value.trim();
+      const didascalia = document.getElementById("didascalia").value.trim();
+      const fileInput = document.getElementById("file");
+
+      if (!nome || !titolo || !didascalia || fileInput.files.length === 0) {
+        alert("⚠️ Compila tutti i campi e seleziona una foto.");
+        return;
+      }
+
+      const file = fileInput.files[0];
+
+      if (file.size > 8 * 1024 * 1024) {
+        alert("⚠️ File troppo grande (max 8 MB).");
+        return;
+      }
+
+      const reader = new FileReader();
+
+      reader.onload = async function () {
+
+        const base64File = reader.result.split(",")[1];
+
+        const payload = {
+          nome: nome,
+          titolo: titolo,
+          didascalia: didascalia,
+          fileName: file.name,
+          fileContent: base64File
+        };
+
+        const flowUrl =
+          "https://defaultdae140c50de440ff94e339a45b687c.fb.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/e2aef588aad049708ae373e3960750b4/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=rbRxH-M9WXI3tzqm8aZUfoYBbanA5jwSfvwRlU0338Q";
+
+        try {
+          const response = await fetch(flowUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+
+          if (response.ok) {
+            alert("✅ Foto inviata con successo!");
+            document.getElementById("nome").value = "";
+            document.getElementById("titolo").value = "";
+            document.getElementById("didascalia").value = "";
+            document.getElementById("file").value = "";
+          } else {
+            alert("❌ Errore durante l’invio.");
+          }
+
+        } catch (err) {
+          alert("❌ Errore di connessione.");
+        }
+      };
+
+      reader.readAsDataURL(file);
+    }
+  </script>
+
 </body>
-
+</html>
